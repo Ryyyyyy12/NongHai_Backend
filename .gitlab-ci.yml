@@ -1,0 +1,25 @@
+stages:
+  - build
+  - test
+
+variables:
+  GO_VERSION: "1.18"
+
+before_script:
+  - echo "Using Go version $GO_VERSION"
+  - apt-get update && apt-get install -y wget
+  - wget https://golang.org/dl/go$GO_VERSION.linux-amd64.tar.gz
+  - tar -C /usr/local -xzf go$GO_VERSION.linux-amd64.tar.gz
+  - export PATH=$PATH:/usr/local/go/bin
+  - go version
+
+build:
+  stage: build
+  script:
+    - go mod tidy
+    - go build -v ./main.go -o nongHai-backend
+
+test:
+  stage: test
+  script:
+    - go test -v ./main.go -o nongHai-backend
