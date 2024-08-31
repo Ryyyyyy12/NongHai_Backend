@@ -31,6 +31,7 @@ func InitRoutes() {
 		})
 	})
 
+	app.Use(middleware.TokenMiddleWare)
 	apiGroup := app.Group("/api")
 	apiGroup.Post("tracking/createTracking", trackingHandler.CreateTracking)
 	apiGroup.Get("tracking/getTracking", trackingHandler.GetTracking)
