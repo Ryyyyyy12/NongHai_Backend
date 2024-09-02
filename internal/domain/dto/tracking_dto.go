@@ -34,4 +34,5 @@ type TrackingInfo struct {
 	Long        float64   `json:"long"`
 	Address     string    `json:"address"`
 	CreatedAt   string    `json:"created_at"`
+	FinderImg   string    `json:"finder_img"`
 }

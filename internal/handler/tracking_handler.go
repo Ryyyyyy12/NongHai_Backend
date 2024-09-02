@@ -46,13 +46,16 @@ func (h TrackingHandler) CreateTracking(c *fiber.Ctx) error {
 func (h TrackingHandler) GetTracking(c *fiber.Ctx) error {
 	geocoder.ApiKey = config.Conf.GoogleAPIKey
 
-	body := new(dto.GetTrackingBody)
-	if err := c.BodyParser(body); err != nil {
-		return err
+	petId := c.Query("petId")
+	if petId == "" {
+		return c.JSON(response.InfoResponse{
+			Success: false,
+			Message: "Pet ID is required",
+		})
 	}
 
 	//Get all tracking
-	trackings, err := h.trackingService.GetAllById(*body.PetId)
+	trackings, err := h.trackingService.GetAllById(petId)
 	if err != nil {
 		return err
 	}
@@ -92,13 +95,14 @@ func (h TrackingHandler) GetTracking(c *fiber.Ctx) error {
 			Long:        tracking.Longitude,
 			Address:     respAddress,
 			CreatedAt:   tracking.CreatedAt.Format("2006-01-02 15:04:05"),
+			FinderImg:   user.Image,
 		}
 		trackingInfoList[i] = trackingInfo
 	}
 
 	// map response
 	resp := dto.GetTrackingPayload{
-		PetId:            body.PetId,
+		PetId:            &petId,
 		TrackingInfoList: trackingInfoList,
 	}
 
