@@ -40,3 +40,24 @@ func (h ChatHandler) CreateChatRoom(c *fiber.Ctx) error {
 		Data:    "Chat room created",
 	})
 }
+
+func (h ChatHandler) GetChatRoom(c *fiber.Ctx) error {
+	body := new(dto.GetChatRoomBody)
+	if err := c.BodyParser(body); err != nil {
+		return err
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return err
+	}
+
+	resp, err := h.chatService.GetChatRoom(*body)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    resp,
+	})
+}

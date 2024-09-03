@@ -47,6 +47,7 @@ func InitRoutes() {
 
 	chatGroup := apiGroup.Group("/chat")
 	chatGroup.Post("/createChatRoom", ChatHandler.CreateChatRoom)
+	chatGroup.Get("/getChatRoom", ChatHandler.GetChatRoom)
 
 	apiGroup.Use(middleware.Cors())
 

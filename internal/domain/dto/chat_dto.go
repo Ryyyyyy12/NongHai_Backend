@@ -5,3 +5,7 @@ type CreateChatRoomBody struct {
 	UserID1 *string `json:"user_id_1" validate:"required"`
 	UserID2 *string `json:"user_id_2" validate:"required"`
 }
+
+type GetChatRoomBody struct {
+	UserID *string `json:"user_id" validate:"required"`
+}

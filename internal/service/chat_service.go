@@ -8,6 +8,7 @@ import (
 
 type IChatService interface {
 	CreateChatRoom(chatData dto.CreateChatRoomBody) error
+	GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error)
 }
 
 type chatService struct {
@@ -28,4 +29,13 @@ func (s *chatService) CreateChatRoom(chatData dto.CreateChatRoomBody) error {
 		UserID1: *chatData.UserID1,
 		UserID2: *chatData.UserID2,
 	})
+}
+
+func (s *chatService) GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error) {
+	chatRoom, err := s.chatRepo.FindByUserID(*chatData.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return chatRoom, nil
 }

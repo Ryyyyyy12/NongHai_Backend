@@ -8,6 +8,7 @@ import (
 
 type IChatRepository interface {
 	Create(chatData model.ChatRoom) error
+	FindByUserID(userId string) (*[]model.ChatRoom, error)
 }
 
 type chatRepository struct {
@@ -22,4 +23,12 @@ func NewChatRepository(db gorm.DB) IChatRepository {
 
 func (r *chatRepository) Create(chatData model.ChatRoom) error {
 	return r.DB.Create(&chatData).Error
+}
+
+func (r *chatRepository) FindByUserID(userId string) (*[]model.ChatRoom, error) {
+	foundChatRoom := new([]model.ChatRoom)
+	if err := r.DB.Find(&foundChatRoom, "user_id1 = ? OR user_id2 = ?", userId, userId).Error; err != nil {
+		return nil, err
+	}
+	return foundChatRoom, nil
 }

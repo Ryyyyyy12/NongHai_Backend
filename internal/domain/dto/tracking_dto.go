@@ -28,7 +28,7 @@ type GetTrackingPayload struct {
 type TrackingInfo struct {
 	ID          uuid.UUID `json:"id"`
 	FinderName  string    `json:"finder_name"`
-	FinderChat  uuid.UUID `json:"finder_chat"` // finderId ไว้ก่อน
+	FinderChat  string    `json:"finder_chat"` // finderId ไว้ก่อน
 	FinderPhone string    `json:"finder_phone"`
 	Lat         float64   `json:"lat"`
 	Long        float64   `json:"long"`
