@@ -30,7 +30,6 @@ func DatabaseInit() {
 func Migrate() error {
 	if err := DB.AutoMigrate(
 		new(model.User),
-		new(model.Message),
 		new(model.ChatRoom),
 		new(model.Notification),
 		new(model.Tracking),

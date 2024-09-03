@@ -14,13 +14,20 @@ import (
 
 func InitRoutes() {
 
+	//Repositories
 	trackingRepo := repository.NewTrackingRepository(*DB)
 	userRepo := repository.NewUserRepository(*DB)
 	petRepo := repository.NewPetRepository(*DB)
+	chatRepo := repository.NewChatRepository(*DB)
 
+	//Services
 	trackingService := service.NewTrackingService(trackingRepo, userRepo, petRepo)
 	userService := service.NewUserService(userRepo)
+	chatService := service.NewChatService(chatRepo)
+
+	//Handlers
 	trackingHandler := handler.NewTrackingHandler(trackingService, userService)
+	ChatHandler := handler.NewChatHandler(chatService)
 
 	app := InitFiber()
 
@@ -33,8 +40,14 @@ func InitRoutes() {
 
 	app.Use(middleware.TokenMiddleWare)
 	apiGroup := app.Group("/api")
-	apiGroup.Post("tracking/createTracking", trackingHandler.CreateTracking)
-	apiGroup.Get("tracking/getTracking", trackingHandler.GetTracking)
+
+	trackingGroup := apiGroup.Group("/tracking")
+	trackingGroup.Post("/createTracking", trackingHandler.CreateTracking)
+	trackingGroup.Get("/getTracking", trackingHandler.GetTracking)
+
+	chatGroup := apiGroup.Group("/chat")
+	chatGroup.Post("/createChatRoom", ChatHandler.CreateChatRoom)
+
 	apiGroup.Use(middleware.Cors())
 
 	Serve(app, config.Conf.Address)

@@ -1,12 +1,13 @@
 package model
 
 import (
-	"backend/internal/domain/helper"
+	"time"
 )
 
 type ChatRoom struct {
-	helper.ModelBase `json:"-"`
-	UserID1          string    `json:"user_id_1" gorm:"not null;foreignKey:ID;references:ID"`
-	UserID2          string    `json:"user_id_2" gorm:"not null;foreignKey:ID;references:ID"`
-	Messages         []Message `json:"messages" gorm:"foreignKey:ChatRoomID;references:ID"`
+	ID        string    `json:"id" gorm:"primary_key;not null;type:uuid;default:uuid_generate_v4()"`
+	CreatedAt time.Time `json:"created_at" gorm:"not null"`
+	UpdatedAt time.Time `json:"updated_at" gor:"not null"`
+	UserID1   string    `json:"user_id_1" gorm:"not null;foreignKey:ID;references:ID"`
+	UserID2   string    `json:"user_id_2" gorm:"not null;foreignKey:ID;references:ID"`
 }
