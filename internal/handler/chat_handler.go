@@ -61,3 +61,43 @@ func (h ChatHandler) GetChatRoom(c *fiber.Ctx) error {
 		Data:    resp,
 	})
 }
+
+func (h ChatHandler) ReadChat(c *fiber.Ctx) error {
+	body := new(dto.ReadChatRoomBody)
+	if err := c.BodyParser(body); err != nil {
+		return err
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return err
+	}
+
+	if err := h.chatService.ReadChat(*body); err != nil {
+		return err
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    "Chat read",
+	})
+}
+
+func (h ChatHandler) SetUnread(c *fiber.Ctx) error {
+	body := new(dto.SendMessageBody)
+	if err := c.BodyParser(body); err != nil {
+		return err
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return err
+	}
+
+	if err := h.chatService.SetUnread(*body); err != nil {
+		return err
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    "Chat unread",
+	})
+}

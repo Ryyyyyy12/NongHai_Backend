@@ -9,6 +9,8 @@ import (
 type IChatRepository interface {
 	Create(chatData model.ChatRoom) error
 	FindByUserID(userId string) (*[]model.ChatRoom, error)
+	FindByChatID(chatId string) (*model.ChatRoom, error)
+	UpdateChat(chatData model.ChatRoom) error
 }
 
 type chatRepository struct {
@@ -31,4 +33,16 @@ func (r *chatRepository) FindByUserID(userId string) (*[]model.ChatRoom, error) 
 		return nil, err
 	}
 	return foundChatRoom, nil
+}
+
+func (r *chatRepository) FindByChatID(chatId string) (*model.ChatRoom, error) {
+	foundChatRoom := new(model.ChatRoom)
+	if err := r.DB.Find(&foundChatRoom, "id = ?", chatId).Error; err != nil {
+		return nil, err
+	}
+	return foundChatRoom, nil
+}
+
+func (r *chatRepository) UpdateChat(chatData model.ChatRoom) error {
+	return r.DB.Save(&chatData).Error
 }

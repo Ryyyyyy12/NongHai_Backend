@@ -9,3 +9,13 @@ type CreateChatRoomBody struct {
 type GetChatRoomBody struct {
 	UserID *string `json:"user_id" validate:"required"`
 }
+
+type ReadChatRoomBody struct {
+	ChatID *string `json:"chat_id" validate:"required"`
+	UserID *string `json:"user_id" validate:"required"`
+}
+
+type SendMessageBody struct {
+	ChatID   *string `json:"chat_id" validate:"required"`
+	SenderID *string `json:"sender_id" validate:"required"`
+}
