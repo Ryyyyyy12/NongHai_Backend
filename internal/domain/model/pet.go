@@ -13,6 +13,7 @@ type Pet struct {
 	AnimalType       enum2.AnimalType `json:"animal_type" gorm:"not null"`
 	Breed            string           `json:"breed" gorm:"not null"`
 	DateOfBirth      time.Time        `json:"date_of_birth" gorm:"not null"`
+	Age         	 string    		  `json:"age" gorm:"-"` // Calculated field, not persisted in DB
 	Sex              enum2.Sex        `json:"sex" gorm:"not null"`
 	Weight           float64          `json:"weight" gorm:"not null"`
 	HairColor        string           `json:"hair_color" gorm:"not null"`

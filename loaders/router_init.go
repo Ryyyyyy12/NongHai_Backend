@@ -16,7 +16,7 @@ func InitRoutes() {
 
 	//Repositories
 	trackingRepo := repository.NewTrackingRepository(*DB)
-	userRepo := repository.NewUserRepository(*DB)
+	userRepo := repository.NewUserRepository(DB)
 	petRepo := repository.NewPetRepository(*DB)
 	chatRepo := repository.NewChatRepository(*DB)
 
@@ -28,6 +28,7 @@ func InitRoutes() {
 	//Handlers
 	trackingHandler := handler.NewTrackingHandler(trackingService, userService)
 	ChatHandler := handler.NewChatHandler(chatService)
+	userHandler := handler.NewUserHandler(userService)
 
 	app := InitFiber()
 
@@ -51,11 +52,15 @@ func InitRoutes() {
 	chatGroup.Post("/readChat", ChatHandler.ReadChat)
 	chatGroup.Post("/setUnread", ChatHandler.SetUnread)
 
+	userGroup := apiGroup.Group("/user")
+	userGroup.Post("/createUser", userHandler.CreateUser)
+	userGroup.Get("/:id", userHandler.GetUser)
+
 	apiGroup.Use(middleware.Cors())
 
 	Serve(app, config.Conf.Address)
-
 }
+
 func InitFiber() *fiber.App {
 
 	app := fiber.New(fiber.Config{
@@ -69,6 +74,7 @@ func InitFiber() *fiber.App {
 
 	return app
 }
+
 func Serve(app *fiber.App, address string) {
 	err := app.Listen(address)
 	if err != nil {
