@@ -62,6 +62,27 @@ func (h ChatHandler) GetChatRoom(c *fiber.Ctx) error {
 	})
 }
 
+func (h ChatHandler) GetCurrentUserChatRoom(c *fiber.Ctx) error {
+	body := new(dto.GetCurrentUserChatRoomBody)
+	if err := c.BodyParser(body); err != nil {
+		return err
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return err
+	}
+
+	resp, err := h.chatService.GetCurrentUserChatRoom(*body)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    resp,
+	})
+}
+
 func (h ChatHandler) ReadChat(c *fiber.Ctx) error {
 	body := new(dto.ReadChatRoomBody)
 	if err := c.BodyParser(body); err != nil {
