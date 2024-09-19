@@ -10,6 +10,7 @@ import (
 type IChatService interface {
 	CreateChatRoom(chatData dto.CreateChatRoomBody) error
 	GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error)
+	GetCurrentUserChatRoom(chatData dto.GetCurrentUserChatRoomBody) (*model.ChatRoom, error)
 	ReadChat(chatData dto.ReadChatRoomBody) error
 	SetUnread(chatData dto.SendMessageBody) error
 }
@@ -43,22 +44,31 @@ func (s *chatService) GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRo
 	return chatRoom, nil
 }
 
+func (s *chatService) GetCurrentUserChatRoom(chatData dto.GetCurrentUserChatRoomBody) (*model.ChatRoom, error) {
+	chatRoom, err := s.chatRepo.FindByChatID(*chatData.ChatID)
+	if err != nil {
+		return nil, err
+	}
+
+	return chatRoom, nil
+}
+
 func (s *chatService) ReadChat(chatData dto.ReadChatRoomBody) error {
 	chatRoom, err := s.chatRepo.FindByChatID(*chatData.ChatID)
 	if err != nil {
 		return err
 	}
 
-	if *chatData.UserID != chatRoom.UserID1 && *chatData.UserID != chatRoom.UserID2 {
+	if *chatData.SenderID != chatRoom.UserID1 && *chatData.SenderID != chatRoom.UserID2 {
 		return errors.New("user not in chat room")
 	}
 
-	if *chatData.UserID == chatRoom.UserID1 {
+	if *chatData.SenderID == chatRoom.UserID1 {
 		// Set user 1 to read
 		chatRoom.IsUser1Read = true
 	}
 
-	if *chatData.UserID == chatRoom.UserID2 {
+	if *chatData.SenderID == chatRoom.UserID2 {
 		//Set user 2 to read
 		chatRoom.IsUser2Read = true
 	}

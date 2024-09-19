@@ -49,7 +49,8 @@ func InitRoutes() {
 	chatGroup := apiGroup.Group("/chat")
 	chatGroup.Post("/createChatRoom", ChatHandler.CreateChatRoom)
 	chatGroup.Get("/getChatRoom", ChatHandler.GetChatRoom)
-	chatGroup.Post("/readChat", ChatHandler.ReadChat)
+	chatGroup.Get("/getCurrentUserChatRoom", ChatHandler.GetCurrentUserChatRoom)
+	chatGroup.Post("/setRead", ChatHandler.ReadChat)
 	chatGroup.Post("/setUnread", ChatHandler.SetUnread)
 
 	userGroup := apiGroup.Group("/user")
