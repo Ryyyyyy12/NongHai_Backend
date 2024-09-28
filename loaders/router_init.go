@@ -19,16 +19,20 @@ func InitRoutes() {
 	userRepo := repository.NewUserRepository(DB)
 	petRepo := repository.NewPetRepository(*DB)
 	chatRepo := repository.NewChatRepository(*DB)
+	tokenRepo := repository.NewTokenRepository(*DB)
 
 	//Services
 	trackingService := service.NewTrackingService(trackingRepo, userRepo, petRepo)
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(chatRepo)
+	userFCMTokenService := service.NewUserFCMTokenService(tokenRepo)
 
 	//Handlers
 	trackingHandler := handler.NewTrackingHandler(trackingService, userService)
 	ChatHandler := handler.NewChatHandler(chatService)
 	userHandler := handler.NewUserHandler(userService)
+	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
+	notificationHandler := handler.NewNotificationHandler()
 
 	app := InitFiber()
 
@@ -52,6 +56,14 @@ func InitRoutes() {
 	chatGroup.Get("/getCurrentUserChatRoom", ChatHandler.GetCurrentUserChatRoom)
 	chatGroup.Post("/setRead", ChatHandler.ReadChat)
 	chatGroup.Post("/setUnread", ChatHandler.SetUnread)
+
+	tokenGroup := apiGroup.Group("/token")
+	tokenGroup.Post("/createUserToken", userTokenHandler.CreateUserFCMToken)
+	tokenGroup.Get("/checkIfTokenExist", userTokenHandler.CheckIfTokenExist)
+	tokenGroup.Delete("/removeUserToken", userTokenHandler.RemoveUserFCMToken)
+
+	notificationGroup := apiGroup.Group("/notification")
+	notificationGroup.Post("/sendNotification", notificationHandler.SendNotification)
 
 	userGroup := apiGroup.Group("/user")
 	userGroup.Post("/createUser", userHandler.CreateUser)

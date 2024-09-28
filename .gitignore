@@ -2,3 +2,5 @@
 config.yaml
 tmp/main
 /tmp
+
+serviceAccountKey.json
