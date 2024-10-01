@@ -1,11 +1,12 @@
 package handler
 
 import (
+	"backend/internal/domain/dto"
+	"backend/internal/domain/response"
+	"backend/internal/service"
 	"context"
 	"fmt"
 	"log"
-
-	"backend/internal/domain/response"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
@@ -14,11 +15,13 @@ import (
 )
 
 type NotificationHandler struct {
-	FirebaseApp *firebase.App
+	FirebaseApp         *firebase.App
+	userFCMTokenService service.IUserFCMTokenService
 }
 
 // NewNotificationHandler initializes a new NotificationHandler with a Firebase App.
-func NewNotificationHandler() NotificationHandler {
+func NewNotificationHandler(userFCMTokenService service.IUserFCMTokenService,
+) NotificationHandler {
 	ctx := context.Background()
 	opt := option.WithCredentialsFile("serviceAccountKey.json") // Path to your service account key
 	app, err := firebase.NewApp(ctx, nil, opt)
@@ -27,12 +30,14 @@ func NewNotificationHandler() NotificationHandler {
 	}
 
 	return NotificationHandler{
-		FirebaseApp: app,
+		userFCMTokenService: userFCMTokenService,
+		FirebaseApp:         app,
 	}
 }
 
 // SendNotification sends a notification using Firebase Cloud Messaging.
 func (h NotificationHandler) SendNotification(c *fiber.Ctx) error {
+	body := new(dto.SendNotificationBody)
 	ctx := context.Background()
 
 	// Obtain a messaging.Client from the initialized Firebase App.
@@ -46,38 +51,49 @@ func (h NotificationHandler) SendNotification(c *fiber.Ctx) error {
 	}
 
 	// This registration token comes from the client FCM SDKs.
-	registrationToken := "ciDfKJoQSLKgiaZdK7I4Mg:APA91bHfj0NO0XFJO-LTdm68439ERlDLlbEtCK4oiV68bglAJDwQb66UDoVBF3Nwfch0ona3GZoBTxiGaZQC5iOLDcazp2nvl2hDytplFptOeoEcPJCtRXRyUXvnaedm6mMVRuaJfsw1"
 
-	if registrationToken == "" {
+	registrationTokens, err := h.userFCMTokenService.GetUserFCMToken(body.UserID)
+	if err != nil {
+		log.Printf("error getting user FCM token: %v\n", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(response.InfoResponse{
+			Success: false,
+			Data:    "Failed to get user FCM token",
+		})
+	}
+
+	if len(registrationTokens) == 0 {
 		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
 			Success: false,
-			Data:    "Registration token is required",
+			Data:    "No registered FCM tokens found",
 		})
 	}
 
 	// Define a message payload.
-	message := &messaging.Message{
+	message := &messaging.MulticastMessage{
 		Notification: &messaging.Notification{
 			Title: "New Alert",
-			Body:  "This is a test notification sent from the server.",
+			Body:  "This is a test notification sent to all users from the server.",
 		},
-		Token: registrationToken,
+		Tokens: registrationTokens, // Set the list of FCM tokens here
 	}
 
-	// Send a message to the device corresponding to the provided registration token.
-	responseID, err := client.Send(ctx, message)
+	// Send a multicast message to all devices corresponding to the provided registration tokens.
+	notiResponses, err := client.SendMulticast(ctx, message)
 	if err != nil {
-		log.Printf("Failed to send message: %v\n", err)
+		log.Printf("Failed to send multicast message: %v\n", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(response.InfoResponse{
 			Success: false,
-			Data:    "Failed to send notification",
+			Data:    "Failed to send notification to all users",
 		})
 	}
 
-	// Successfully sent message
-	fmt.Printf("Successfully sent message: %s\n", responseID)
+	// Log and return the number of messages successfully sent
+	successCount := notiResponses.SuccessCount
+	failureCount := notiResponses.FailureCount
+	fmt.Printf("Successfully sent message to %d devices, %d messages failed\n", successCount, failureCount)
+
 	return c.JSON(response.InfoResponse{
 		Success: true,
-		Data:    fmt.Sprintf("Notification sent successfully, message ID: %s", responseID),
+		Data:    fmt.Sprintf("Notification sent successfully to %d devices, %d failures", successCount, failureCount),
 	})
 }

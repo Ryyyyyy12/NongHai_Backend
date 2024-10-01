@@ -32,6 +32,13 @@ func (h UserTokenHandler) CreateUserFCMToken(c *fiber.Ctx) error {
 	}
 
 	if err := h.userFCMTokenService.CreateUserFCMToken(*body); err != nil {
+		if err.Error() == "token already exist" {
+			return c.JSON(response.InfoResponse{
+				Success: true,
+				Data:    "Token already exist",
+			})
+
+		}
 		return err
 	}
 
@@ -41,27 +48,27 @@ func (h UserTokenHandler) CreateUserFCMToken(c *fiber.Ctx) error {
 	})
 }
 
-func (h UserTokenHandler) CheckIfTokenExist(c *fiber.Ctx) error {
-	body := new(dto.UserFCMTokenBody)
+// func (h UserTokenHandler) CheckIfTokenExist(c *fiber.Ctx) error {
+// 	body := new(dto.UserFCMTokenBody)
 
-	tokens, err := h.userFCMTokenService.GetUserFCMToken(body.UserID)
-	if err != nil {
-		return err
-	}
+// 	tokens, err := h.userFCMTokenService.GetUserFCMToken(body.UserID)
+// 	if err != nil {
+// 		return err
+// 	}
 
-	if len(*tokens) == 0 {
-		return c.JSON(response.InfoResponse{
-			Success: true,
-			Data:    false, // Token not exist
-		})
-	} else {
-		return c.JSON(response.InfoResponse{
-			Success: true,
-			Data:    true, // Token exist
-		})
-	}
+// 	if len(*tokens) == 0 {
+// 		return c.JSON(response.InfoResponse{
+// 			Success: true,
+// 			Data:    false, // Token not exist
+// 		})
+// 	} else {
+// 		return c.JSON(response.InfoResponse{
+// 			Success: true,
+// 			Data:    true, // Token exist
+// 		})
+// 	}
 
-}
+// }
 
 func (h UserTokenHandler) RemoveUserFCMToken(c *fiber.Ctx) error {
 	body := new(dto.UserFCMTokenBody)

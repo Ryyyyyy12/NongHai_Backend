@@ -32,7 +32,7 @@ func InitRoutes() {
 	ChatHandler := handler.NewChatHandler(chatService)
 	userHandler := handler.NewUserHandler(userService)
 	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
-	notificationHandler := handler.NewNotificationHandler()
+	notificationHandler := handler.NewNotificationHandler(userFCMTokenService)
 
 	app := InitFiber()
 
@@ -59,7 +59,7 @@ func InitRoutes() {
 
 	tokenGroup := apiGroup.Group("/token")
 	tokenGroup.Post("/createUserToken", userTokenHandler.CreateUserFCMToken)
-	tokenGroup.Get("/checkIfTokenExist", userTokenHandler.CheckIfTokenExist)
+	// tokenGroup.Get("/checkIfTokenExist", userTokenHandler.CheckIfTokenExist)
 	tokenGroup.Delete("/removeUserToken", userTokenHandler.RemoveUserFCMToken)
 
 	notificationGroup := apiGroup.Group("/notification")

@@ -29,7 +29,7 @@ func (r *tokenRepository) CreateToken(tokenData model.Token) error {
 
 func (r *tokenRepository) GetTokenByUserID(userID string) (*[]model.Token, error) {
 	foundToken := new([]model.Token)
-	if err := r.DB.Find(&foundToken, "user_id = ?", userID).Error; err != nil {
+	if err := r.DB.First(&foundToken, "user_id = ?", userID).Error; err != nil {
 		return nil, err
 	}
 	return foundToken, nil
@@ -37,7 +37,7 @@ func (r *tokenRepository) GetTokenByUserID(userID string) (*[]model.Token, error
 
 func (r *tokenRepository) GetTokenByToken(token string) (*model.Token, error) {
 	foundToken := new(model.Token)
-	if err := r.DB.Find(&foundToken, "token = ?", token).Error; err != nil {
+	if err := r.DB.First(&foundToken, "token = ?", token).Error; err != nil {
 		return nil, err
 	}
 	return foundToken, nil

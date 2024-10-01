@@ -5,11 +5,12 @@ import (
 	"backend/internal/domain/model"
 	"backend/internal/repository"
 	"errors"
+	"fmt"
 )
 
 type IUserFCMTokenService interface {
 	CreateUserFCMToken(body dto.UserFCMTokenBody) error
-	GetUserFCMToken(userID string) (*[]model.Token, error)
+	GetUserFCMToken(userID string) ([]string, error)
 	RemoveUserFCMToken(body dto.UserFCMTokenBody) error
 }
 
@@ -26,8 +27,9 @@ func NewUserFCMTokenService(
 }
 
 func (s *userFCMTokenService) CreateUserFCMToken(body dto.UserFCMTokenBody) error {
+	fmt.Print(body.Token)
 	token, err := s.TokenRepo.GetTokenByToken(body.Token)
-	if err != nil {
+	if err != nil && err.Error() != "record not found" {
 		return err
 	}
 
@@ -41,12 +43,18 @@ func (s *userFCMTokenService) CreateUserFCMToken(body dto.UserFCMTokenBody) erro
 	})
 }
 
-func (s *userFCMTokenService) GetUserFCMToken(userID string) (*[]model.Token, error) {
+func (s *userFCMTokenService) GetUserFCMToken(userID string) ([]string, error) {
 	token, err := s.TokenRepo.GetTokenByUserID(userID)
 	if err != nil {
 		return nil, err
 	}
-	return token, nil
+	var tokens []string
+	for _, t := range *token {
+		tokens = append(tokens, t.Token)
+	}
+
+	fmt.Print(tokens)
+	return tokens, nil
 }
 
 func (s *userFCMTokenService) RemoveUserFCMToken(body dto.UserFCMTokenBody) error {
