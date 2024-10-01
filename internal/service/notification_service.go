@@ -60,26 +60,50 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 	}
 
 	// Define a message payload.
-	message := &messaging.MulticastMessage{
-		Notification: &messaging.Notification{
-			Title: "New Alert",
-			Body:  "This is a test notification sent to all users from the server.",
-		},
-		Tokens: registrationTokens, // Set the list of FCM tokens here
+	// message := &messaging.MulticastMessage{
+	// 	Notification: &messaging.Notification{
+	// 		Title: "New Alert",
+	// 		Body:  "This is a test notification sent to all users from the server.",
+	// 	},
+	// 	Tokens: registrationTokens, // Set the list of FCM tokens here
+	// }
+
+	// // Send a multicast message to all devices corresponding to the provided registration tokens.
+	// notiResponses, err := client.SendMulticast(ctx, message)
+	// if err != nil {
+	// 	log.Printf("Failed to send multicast message: %v\n", err)
+	// 	return 0, 0, errors.New("failed to send multicast message")
+	// }
+
+	// // Log and return the number of messages successfully sent
+	// successCount := notiResponses.SuccessCount
+	// failureCount := notiResponses.FailureCount
+	// fmt.Printf("Successfully sent message to %d devices, %d messages failed\n", successCount, failureCount)
+
+	// return successCount, failureCount, nil
+
+	// Temp Fix muliticast message
+	successCount := 0
+	failureCount := 0
+	for _, token := range registrationTokens {
+		message := &messaging.Message{
+			Notification: &messaging.Notification{
+				Title: "New Alert",
+				Body:  "This is a test notification sent from the server.",
+			},
+			Token: token,
+		}
+		// Send a message to the device corresponding to the provided registration token.
+		responseID, err := client.Send(ctx, message)
+		if err != nil {
+			log.Printf("Failed to send message: %v\n", err)
+			failureCount++
+			return 0, 0, errors.New("failed to send message")
+		}
+		// Successfully sent message
+		fmt.Printf("Successfully sent message: %s\n", responseID)
+		successCount++
 	}
-
-	// Send a multicast message to all devices corresponding to the provided registration tokens.
-	notiResponses, err := client.SendMulticast(ctx, message)
-	if err != nil {
-		log.Printf("Failed to send multicast message: %v\n", err)
-		return 0, 0, errors.New("failed to send multicast message")
-	}
-
-	// Log and return the number of messages successfully sent
-	successCount := notiResponses.SuccessCount
-	failureCount := notiResponses.FailureCount
-	fmt.Printf("Successfully sent message to %d devices, %d messages failed\n", successCount, failureCount)
-
 	return successCount, failureCount, nil
 
 }
