@@ -26,13 +26,14 @@ func InitRoutes() {
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(chatRepo)
 	userFCMTokenService := service.NewUserFCMTokenService(tokenRepo)
+	notificationService := service.NewNotificationService(userFCMTokenService)
 
 	//Handlers
 	trackingHandler := handler.NewTrackingHandler(trackingService, userService)
 	ChatHandler := handler.NewChatHandler(chatService)
 	userHandler := handler.NewUserHandler(userService)
 	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
-	notificationHandler := handler.NewNotificationHandler(userFCMTokenService)
+	notificationHandler := handler.NewNotificationHandler(notificationService)
 
 	app := InitFiber()
 
