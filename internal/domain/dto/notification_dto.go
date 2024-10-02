@@ -15,7 +15,6 @@ type NotificationData struct {
 }
 
 type CreateNotificationObjectBody struct {
-	PetOwnerID *string   `json:"pet_owner_id" validate:"required"`
 	PetID      *string   `json:"pet_id" validate:"required"`
 	TrackingID uuid.UUID `json:"tracking_id" validate:"required"`
 }

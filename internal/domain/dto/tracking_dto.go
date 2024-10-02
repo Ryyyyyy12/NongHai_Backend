@@ -3,11 +3,10 @@ package dto
 import "github.com/google/uuid"
 
 type CreateTrackingBody struct {
-	PetId      *string  `json:"pet_id" validate:"required"`
-	PetOwnerID *string  `json:"pet_owner_id" validate:"required"`
-	FinderId   *string  `json:"finder_id" validate:"required"`
-	Lat        *float64 `json:"lat"`
-	Long       *float64 `json:"long"`
+	PetId    *string  `json:"pet_id" validate:"required"`
+	FinderId *string  `json:"finder_id" validate:"required"`
+	Lat      *float64 `json:"lat"`
+	Long     *float64 `json:"long"`
 }
 
 type CreateTrackingPayload struct {

@@ -26,11 +26,13 @@ type notificationService struct {
 	FirebaseApp         *firebase.App
 	userFCMTokenService IUserFCMTokenService
 	notiRepo            repository.INotificationRepository
+	petRepo             repository.IPetRepository
 }
 
 func NewNotificationService(
 	userFCMTokenService IUserFCMTokenService,
 	notiRepo repository.INotificationRepository,
+	petRepo repository.IPetRepository,
 
 ) INotificationService {
 	ctx := context.Background()
@@ -43,6 +45,7 @@ func NewNotificationService(
 		userFCMTokenService: userFCMTokenService,
 		FirebaseApp:         app,
 		notiRepo:            notiRepo,
+		petRepo:             petRepo,
 	}
 }
 
@@ -122,8 +125,14 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 }
 
 func (s *notificationService) CreateNotificationObject(notiData dto.CreateNotificationObjectBody) error {
+	// Check if pet exists
+	petData, err := s.petRepo.FindById(*notiData.PetID)
+	if err != nil {
+		return err
+	}
+
 	if err := s.notiRepo.CreateNotificationObject(model.Notification{
-		UserID:     *notiData.PetOwnerID,
+		UserID:     petData.UserID,
 		PetID:      *notiData.PetID,
 		TrackingID: notiData.TrackingID,
 		IsRead:     false,

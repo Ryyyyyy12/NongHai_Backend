@@ -45,7 +45,6 @@ func (h TrackingHandler) CreateTracking(c *fiber.Ctx) error {
 	}
 
 	notiObject := dto.CreateNotificationObjectBody{
-		PetOwnerID: body.PetOwnerID,
 		PetID:      body.PetId,
 		TrackingID: resp.ID,
 	}
