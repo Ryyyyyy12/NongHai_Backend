@@ -20,16 +20,17 @@ func InitRoutes() {
 	petRepo := repository.NewPetRepository(*DB)
 	chatRepo := repository.NewChatRepository(*DB)
 	tokenRepo := repository.NewTokenRepository(*DB)
+	notificationRepo := repository.NewNotificationRepository(*DB)
 
 	//Services
 	trackingService := service.NewTrackingService(trackingRepo, userRepo, petRepo)
 	userService := service.NewUserService(userRepo)
 	chatService := service.NewChatService(chatRepo)
 	userFCMTokenService := service.NewUserFCMTokenService(tokenRepo)
-	notificationService := service.NewNotificationService(userFCMTokenService)
+	notificationService := service.NewNotificationService(userFCMTokenService, notificationRepo)
 
 	//Handlers
-	trackingHandler := handler.NewTrackingHandler(trackingService, userService)
+	trackingHandler := handler.NewTrackingHandler(trackingService, userService, notificationService)
 	ChatHandler := handler.NewChatHandler(chatService)
 	userHandler := handler.NewUserHandler(userService)
 	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
@@ -65,6 +66,9 @@ func InitRoutes() {
 
 	notificationGroup := apiGroup.Group("/notification")
 	notificationGroup.Post("/sendNotification", notificationHandler.SendNotification)
+	// notificationGroup.Post("/createNotificationObject", notificationHandler.CreateNotificationObject)
+	notificationGroup.Get("/getNotificationObject", notificationHandler.GetNotificationObject)
+	
 
 	userGroup := apiGroup.Group("/user")
 	userGroup.Post("/createUser", userHandler.CreateUser)

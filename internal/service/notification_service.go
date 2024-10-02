@@ -2,6 +2,8 @@ package service
 
 import (
 	"backend/internal/domain/dto"
+	"backend/internal/domain/model"
+	"backend/internal/repository"
 	"context"
 	"errors"
 	"fmt"
@@ -9,20 +11,26 @@ import (
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
+	"github.com/google/uuid"
 	"google.golang.org/api/option"
 )
 
 type INotificationService interface {
 	SendNotification(notificationData dto.SendNotificationBody) (int, int, error)
+	CreateNotificationObject(notiData dto.CreateNotificationObjectBody) error
+	GetNotificationObject(userID string) ([]*model.Notification, error)
+	ReadNotificationObject(notiID uuid.UUID) error
 }
 
 type notificationService struct {
 	FirebaseApp         *firebase.App
 	userFCMTokenService IUserFCMTokenService
+	notiRepo            repository.INotificationRepository
 }
 
 func NewNotificationService(
 	userFCMTokenService IUserFCMTokenService,
+	notiRepo repository.INotificationRepository,
 
 ) INotificationService {
 	ctx := context.Background()
@@ -34,6 +42,7 @@ func NewNotificationService(
 	return &notificationService{
 		userFCMTokenService: userFCMTokenService,
 		FirebaseApp:         app,
+		notiRepo:            notiRepo,
 	}
 }
 
@@ -49,7 +58,7 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 
 	// This registration token comes from the client FCM SDKs.
 
-	registrationTokens, err := s.userFCMTokenService.GetUserFCMToken(notiData.UserID)
+	registrationTokens, err := s.userFCMTokenService.GetUserFCMToken(*notiData.SentTO)
 	if err != nil {
 		log.Printf("error getting user FCM token: %v\n", err)
 		return 0, 0, errors.New("failed to get user FCM token")
@@ -82,14 +91,18 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 
 	// return successCount, failureCount, nil
 
-	// Temp Fix muliticast message
+	// Temp Fix muliticast message Mmulticast discontinued
 	successCount := 0
 	failureCount := 0
 	for _, token := range registrationTokens {
 		message := &messaging.Message{
 			Notification: &messaging.Notification{
-				Title: "New Alert",
-				Body:  "This is a test notification sent from the server.",
+				Title: *notiData.Title,
+				Body:  *notiData.Body,
+			},
+			Data: map[string]string{
+				"navigate_to": *notiData.NotificationData.Navigateto,
+				"chat_with":   *notiData.NotificationData.ChatWith,
 			},
 			Token: token,
 		}
@@ -106,4 +119,37 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 	}
 	return successCount, failureCount, nil
 
+}
+
+func (s *notificationService) CreateNotificationObject(notiData dto.CreateNotificationObjectBody) error {
+	if err := s.notiRepo.CreateNotificationObject(model.Notification{
+		UserID:     *notiData.PetOwnerID,
+		PetID:      *notiData.PetID,
+		TrackingID: notiData.TrackingID,
+		IsRead:     false,
+	}); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *notificationService) GetNotificationObject(userID string) ([]*model.Notification, error) {
+	notiObject, err := s.notiRepo.GetNotificationObjectByUserID(userID)
+	if err != nil {
+		return nil, err
+	}
+	return notiObject, nil
+}
+
+func (s *notificationService) ReadNotificationObject(notiID uuid.UUID) error {
+	notiObject, err := s.notiRepo.GetNotificationObjectByNotiID(notiID.String())
+	if err != nil {
+		return err
+	}
+	notiObject.IsRead = true
+	if err := s.notiRepo.UpdateNotificationObject(*notiObject); err != nil {
+		return err
+	}
+
+	return nil
 }

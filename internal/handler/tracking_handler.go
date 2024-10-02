@@ -6,19 +6,26 @@ import (
 	"backend/internal/service"
 	"backend/internal/util/text"
 	"backend/loaders/config"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/kelvins/geocoder"
 )
 
 type TrackingHandler struct {
-	trackingService service.ITrackingService
-	userService     service.IUserService
+	trackingService     service.ITrackingService
+	userService         service.IUserService
+	notificationService service.INotificationService
 }
 
-func NewTrackingHandler(trackingService service.ITrackingService, userService service.IUserService) TrackingHandler {
+func NewTrackingHandler(
+	trackingService service.ITrackingService,
+	userService service.IUserService,
+	notificationService service.INotificationService,
+) TrackingHandler {
 	return TrackingHandler{
-		trackingService: trackingService,
-		userService:     userService,
+		trackingService:     trackingService,
+		userService:         userService,
+		notificationService: notificationService,
 	}
 }
 
@@ -34,6 +41,17 @@ func (h TrackingHandler) CreateTracking(c *fiber.Ctx) error {
 
 	resp, err := h.trackingService.Create(*body.PetId, *body.FinderId, *body.Lat, *body.Long)
 	if err != nil {
+		return err
+	}
+
+	notiObject := dto.CreateNotificationObjectBody{
+		PetOwnerID: body.PetOwnerID,
+		PetID:      body.PetId,
+		TrackingID: resp.ID,
+	}
+
+	// Create notification object
+	if err := h.notificationService.CreateNotificationObject(notiObject); err != nil {
 		return err
 	}
 

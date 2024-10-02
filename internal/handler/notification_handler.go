@@ -54,3 +54,63 @@ func (h NotificationHandler) SendNotification(c *fiber.Ctx) error {
 		Data:    fmt.Sprintf("Notification sent successfully to %d devices, %d failures", successCount, failureCount),
 	})
 }
+
+// change to use with create tracking
+func (h NotificationHandler) CreateNotificationObject(c *fiber.Ctx) error {
+	body := new(dto.CreateNotificationObjectBody)
+	if err := c.BodyParser(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	if err := h.notificationService.CreateNotificationObject(*body); err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    "Notification object created successfully",
+	})
+}
+
+func (h NotificationHandler) GetNotificationObject(c *fiber.Ctx) error {
+	body := new(dto.GetNotificationObjectBody)
+	if err := c.BodyParser(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	notiObject, err := h.notificationService.GetNotificationObject(*body.UserID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response.ErrorResponse{
+			Success: false,
+			Error:   err.Error(),
+		})
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    notiObject,
+	})
+}
