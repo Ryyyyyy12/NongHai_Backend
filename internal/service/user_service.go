@@ -1,14 +1,14 @@
 package service
 
 import (
+	"backend/internal/domain/dto"
+	"backend/internal/domain/helper"
 	"backend/internal/domain/model"
 	"backend/internal/repository"
-	"fmt"
-	"time"
 )
 
 type IUserService interface {
-	GetUserInfo(userId string) (*model.User, error)
+	GetUserInfo(userId string) (*dto.UserInfoResponse, error)  // Return DTO response
 	Create(user *model.User) (*model.User, error)
 }
 
@@ -22,46 +22,49 @@ func NewUserService(userRepo repository.IUserRepository) IUserService {
 	}
 }
 
-// Helper function to calculate age
-func calculateAge(birthDate time.Time) string {
-	now := time.Now()
-	years := now.Year() - birthDate.Year()
-
-	// If the pet's birthday hasn't occurred yet this year, subtract a year from the age
-	if now.YearDay() < birthDate.YearDay() {
-		years--
-	}
-
-	if years > 0 {
-		if years == 1 {
-			return "1 year"
-		}
-		return fmt.Sprintf("%d years", years)
-	}
-	
-	// Otherwise, return age in months
-	months := int(now.Sub(birthDate).Hours() / (24 * 30))
-	if months == 0 || months == 1 {
-		return fmt.Sprintf("%d month", months)
-	}
-	return fmt.Sprintf("%d months", months)
-	
-}
-
 // GetUserInfo retrieves a user by ID and preloads the Pets field
-func (s *userService) GetUserInfo(userId string) (*model.User, error) {
-	// Fetch user from the repository, which should include preloading the pets
+func (s *userService) GetUserInfo(userId string) (*dto.UserInfoResponse, error) {
 	user, err := s.userRepo.FindByIdWithPets(userId)
 	if err != nil {
 		return nil, err
 	}
 
-	// Calculate the age for each pet and store it in a custom field
-	for i := range user.Pets {
-		user.Pets[i].Age = calculateAge(user.Pets[i].DateOfBirth)
+	// Convert model.User and model.Pet to corresponding DTOs
+	var petsDto []dto.CreatePetBody
+	for _, pet := range user.Pets {
+		petDto := dto.CreatePetBody{
+			UserID:      pet.UserID,
+			Name:        pet.Name,
+			AnimalType:  pet.AnimalType,
+			Breed:       pet.Breed,
+			DateOfBirth: dto.CustomDate{Time: pet.DateOfBirth},
+			Age:         helper.CalculateAge(pet.DateOfBirth), // Set the calculated Age here
+			Sex:         pet.Sex,
+			Weight:      pet.Weight,
+			HairColor:   pet.HairColor,
+			BloodType:   pet.BloodType,
+			Note:        pet.Note,
+			Image:       pet.Image,
+		}
+		petsDto = append(petsDto, petDto)
 	}
 
-	return user, nil
+	// Prepare the DTO for the user info response
+	userInfo := &dto.UserInfoResponse{
+		ID:       user.ID,
+		Username: user.Username,
+		Name:     user.Name,
+		Surname:  user.Surname,
+		Email:    user.Email,
+		Phone:    user.Phone,
+		Address:  user.Address,
+		Latitude: user.Latitude,
+		Longitude: user.Longitude,
+		Image:    user.Image,
+		Pets:     petsDto,
+	}
+
+	return userInfo, nil
 }
 
 // Create a new user in the repository

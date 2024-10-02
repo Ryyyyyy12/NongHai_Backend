@@ -12,3 +12,17 @@ type CreateUserBody struct {
 	Longitude float64 `json:"longitude"`
 	Image     string  `json:"image"`
 }
+
+type UserInfoResponse struct {
+	ID        string          `json:"id"`
+	Username  string          `json:"username"`
+	Name      string          `json:"name"`
+	Surname   string          `json:"surname"`
+	Email     string          `json:"email"`
+	Phone     string          `json:"phone"`
+	Address   string          `json:"address"`
+	Latitude  float64         `json:"latitude"`
+	Longitude float64         `json:"longitude"`
+	Image     string          `json:"image"`
+	Pets      []CreatePetBody `json:"pets"`
+}

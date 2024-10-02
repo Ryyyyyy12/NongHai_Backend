@@ -8,24 +8,24 @@ import (
 type AnimalType string
 
 var (
-	Dog AnimalType = "dog"
-	Cat AnimalType = "cat"
+	Dog AnimalType = "Dog" // Use capital "D"
+	Cat AnimalType = "Cat" // Use capital "C"
 )
 
-func (a AnimalType) UnmarshalJSON(b []byte) error {
-	//unmarshal json
+func (a *AnimalType) UnmarshalJSON(b []byte) error {
+	// Unmarshal json
 	v := new(string)
 	if err := json.Unmarshal(b, v); err != nil {
 		return err
 	}
 
-	//validate value
+	// Validate value
 	val := AnimalType(*v)
 	if val != Dog && val != Cat {
-		return fmt.Errorf("invalid animal type", val)
+		return fmt.Errorf("invalid animal type: %s", val) // Use correct format string
 	}
 
-	//set value
-	a = val
+	// Set value
+	*a = val // Update the original value using pointer dereference
 	return nil
 }
