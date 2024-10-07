@@ -31,6 +31,9 @@ func (s *petService) GetPetInfo(petId string) (*dto.CreatePetBody, error) {
 
 	// Convert model.Pet to dto.CreatePetBody and calculate the age
 	petDto := &dto.CreatePetBody{
+		ID:          pet.ID.String(),
+		CreatedAt:  pet.CreatedAt,
+		UpdatedAt:  pet.UpdatedAt,
 		UserID:      pet.UserID,
 		Name:        pet.Name,
 		AnimalType:  pet.AnimalType,

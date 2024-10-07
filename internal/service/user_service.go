@@ -33,6 +33,9 @@ func (s *userService) GetUserInfo(userId string) (*dto.UserInfoResponse, error) 
 	var petsDto []dto.CreatePetBody
 	for _, pet := range user.Pets {
 		petDto := dto.CreatePetBody{
+			ID:          pet.ID.String(),
+			CreatedAt:  pet.CreatedAt,
+			UpdatedAt:  pet.UpdatedAt,
 			UserID:      pet.UserID,
 			Name:        pet.Name,
 			AnimalType:  pet.AnimalType,

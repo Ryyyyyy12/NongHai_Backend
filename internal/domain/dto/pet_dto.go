@@ -2,11 +2,16 @@ package dto
 
 import (
 	enum2 "backend/internal/domain/enum"
+	// "backend/internal/domain/helper"
 	"strings"
 	"time"
 )
 
 type CreatePetBody struct {
+	// helper.ModelBase
+	ID          string           `json:"id"`
+	CreatedAt     time.Time      `json:"created_at" gorm:"not null"`
+	UpdatedAt     time.Time      `json:"updated_at" gor:"not null"`
 	UserID      string           `json:"user_id" gorm:"not null;foreignKey:ID;references:ID"`
 	Name        string           `json:"name" gorm:"not null"`
 	AnimalType  enum2.AnimalType `json:"animal_type" gorm:"not null"`
