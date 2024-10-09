@@ -28,11 +28,22 @@ func NewChatService(
 }
 
 func (s *chatService) CreateChatRoom(chatData dto.CreateChatRoomBody) error {
-	return s.chatRepo.Create(model.ChatRoom{
+	_, err := s.chatRepo.FindByChatID(*chatData.ChatID)
+	if err == nil {
+		return errors.New("chat room already exists")
+	}
+
+	err = s.chatRepo.Create(model.ChatRoom{
 		ID:      *chatData.ChatID,
 		UserID1: *chatData.UserID1,
 		UserID2: *chatData.UserID2,
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *chatService) GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error) {

@@ -32,6 +32,12 @@ func (h ChatHandler) CreateChatRoom(c *fiber.Ctx) error {
 	}
 
 	if err := h.chatService.CreateChatRoom(*body); err != nil {
+		if err.Error() == "chat room already exists" {
+			return c.JSON(response.InfoResponse{
+				Success: true,
+				Data:    "Chat room already exists",
+			})
+		}
 		return err
 	}
 
