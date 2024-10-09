@@ -17,7 +17,7 @@ func InitRoutes() {
 	//Repositories
 	trackingRepo := repository.NewTrackingRepository(*DB)
 	userRepo := repository.NewUserRepository(DB)
-	petRepo := repository.NewPetRepository(*DB)
+	petRepo := repository.NewPetRepository(DB)
 	chatRepo := repository.NewChatRepository(*DB)
 	tokenRepo := repository.NewTokenRepository(*DB)
 	notificationRepo := repository.NewNotificationRepository(*DB)
@@ -28,6 +28,7 @@ func InitRoutes() {
 	chatService := service.NewChatService(chatRepo)
 	userFCMTokenService := service.NewUserFCMTokenService(tokenRepo)
 	notificationService := service.NewNotificationService(userFCMTokenService, notificationRepo, petRepo)
+	petService := service.NewPetService(petRepo)
 
 	//Handlers
 	trackingHandler := handler.NewTrackingHandler(trackingService, userService, notificationService)
@@ -35,6 +36,7 @@ func InitRoutes() {
 	userHandler := handler.NewUserHandler(userService)
 	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
 	notificationHandler := handler.NewNotificationHandler(notificationService)
+	petHandler := handler.NewPetHandler(petService)
 
 	app := InitFiber()
 
@@ -72,6 +74,10 @@ func InitRoutes() {
 	userGroup := apiGroup.Group("/user")
 	userGroup.Post("/createUser", userHandler.CreateUser)
 	userGroup.Get("/:id", userHandler.GetUser)
+
+	petGroup := apiGroup.Group("/pet")
+	petGroup.Post("/createPet", petHandler.CreatePet)
+	petGroup.Get("/:id", petHandler.GetPet)
 
 	apiGroup.Use(middleware.Cors())
 

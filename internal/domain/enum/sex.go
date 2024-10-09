@@ -8,24 +8,24 @@ import (
 type Sex string
 
 var (
-	Male   Sex = "male"
-	Female Sex = "female"
+	Male   Sex = "Male"   // Use capital "M"
+	Female Sex = "Female" // Use capital "F"
 )
 
-func (s Sex) UnmarshalJSON(b []byte) error {
-	//unmarshal json
+func (s *Sex) UnmarshalJSON(b []byte) error {
+	// Unmarshal json
 	v := new(string)
 	if err := json.Unmarshal(b, v); err != nil {
 		return err
 	}
 
-	//validate value
+	// Validate value
 	val := Sex(*v)
 	if val != Male && val != Female {
-		return fmt.Errorf("invalid sex type", val)
+		return fmt.Errorf("invalid sex type: %s", val) // Use correct format string
 	}
 
-	//set value
-	s = val
+	// Set value
+	*s = val // Update the original value using pointer dereference
 	return nil
 }
