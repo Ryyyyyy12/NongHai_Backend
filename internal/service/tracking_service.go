@@ -3,6 +3,7 @@ package service
 import (
 	"backend/internal/domain/model"
 	"backend/internal/repository"
+	"sort"
 	"strings"
 )
 
@@ -47,6 +48,9 @@ func (s *trackingService) GetAllById(petId string) (tracking *[]model.Tracking, 
 	if err != nil {
 		return nil, err
 	}
-
+	//order by created_at
+	sort.Slice(*foundTracking, func(i, j int) bool {
+		return (*foundTracking)[i].CreatedAt.After((*foundTracking)[j].CreatedAt)
+	})
 	return foundTracking, nil
 }
