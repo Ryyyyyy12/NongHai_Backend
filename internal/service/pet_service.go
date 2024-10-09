@@ -44,6 +44,8 @@ func (s *petService) GetPetInfo(petId string) (*dto.CreatePetBody, error) {
 		Weight:      pet.Weight,
 		HairColor:   pet.HairColor,
 		BloodType:   pet.BloodType,
+		Eyes: pet.Eyes,
+		Status: pet.Status,
 		Note:        pet.Note,
 		Image:       pet.Image,
 	}

@@ -75,6 +75,8 @@ func (h PetHandler) CreatePet(c *fiber.Ctx) error {
 		Weight:      body.Weight,
 		HairColor:   body.HairColor,
 		BloodType:   body.BloodType,
+		Eyes: body.Eyes,
+		Status: body.Status,
 		Note:        body.Note,
 		Image:       body.Image,
 	}

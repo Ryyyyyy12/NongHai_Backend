@@ -17,6 +17,8 @@ type Pet struct {
 	Weight           float64          `json:"weight" gorm:"not null"`
 	HairColor        string           `json:"hair_color" gorm:"not null"`
 	BloodType        string           `json:"blood_type" gorm:"not null"`
+	Eyes             string           `json:"eyes" gorm:"not null"`
+	Status           enum2.Status     `json:"status" gorm:"not null"`
 	Note             string           `json:"note"`
 	Image            string           `json:"image"`
 	Tracking         []Tracking       `json:"tracking" gorm:"foreignKey:PetID;references:ID"`
