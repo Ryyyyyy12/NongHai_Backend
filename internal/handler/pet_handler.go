@@ -98,3 +98,39 @@ func (h PetHandler) CreatePet(c *fiber.Ctx) error {
 		Message: "Pet created successfully",
 	})
 }
+
+// UpdatePet updates an existing pet's details
+func (h PetHandler) UpdatePet(c *fiber.Ctx) error {
+	petId := c.Params("id")
+	if petId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Pet ID is required",
+		})
+	}
+
+	// Parse the body into a map for partial updates
+	var updateData map[string]interface{}
+	if err := c.BodyParser(&updateData); err != nil {
+		fmt.Println("Error parsing body:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Invalid request body",
+		})
+	}
+
+	// Call the service to update the pet
+	updatedPet, err := h.petService.UpdatePet(petId, updateData)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Failed to update pet: " + err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(response.InfoResponse{
+		Success: true,
+		Data:    updatedPet,
+		Message: "Pet updated successfully",
+	})
+}
