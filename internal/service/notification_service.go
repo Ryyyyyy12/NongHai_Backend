@@ -11,7 +11,6 @@ import (
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/messaging"
-	"github.com/google/uuid"
 	"google.golang.org/api/option"
 )
 
@@ -19,7 +18,8 @@ type INotificationService interface {
 	SendNotification(notificationData dto.SendNotificationBody) (int, int, error)
 	CreateNotificationObject(notiData dto.CreateNotificationObjectBody) error
 	GetNotificationObject(userID string) ([]*model.Notification, error)
-	ReadNotificationObject(notiID uuid.UUID) error
+	ReadNotificationObject(notiID string) error
+	GetNotificationObjectByNotiID(notiID string) (*model.Notification, error)
 }
 
 type notificationService struct {
@@ -150,8 +150,8 @@ func (s *notificationService) GetNotificationObject(userID string) ([]*model.Not
 	return notiObject, nil
 }
 
-func (s *notificationService) ReadNotificationObject(notiID uuid.UUID) error {
-	notiObject, err := s.notiRepo.GetNotificationObjectByNotiID(notiID.String())
+func (s *notificationService) ReadNotificationObject(notiID string) error {
+	notiObject, err := s.notiRepo.GetNotificationObjectByNotiID(notiID)
 	if err != nil {
 		return err
 	}
@@ -161,4 +161,12 @@ func (s *notificationService) ReadNotificationObject(notiID uuid.UUID) error {
 	}
 
 	return nil
+}
+
+func (s *notificationService) GetNotificationObjectByNotiID(notiID string) (*model.Notification, error) {
+	notiObject, err := s.notiRepo.GetNotificationObjectByNotiID(notiID)
+	if err != nil {
+		return nil, err
+	}
+	return notiObject, nil
 }

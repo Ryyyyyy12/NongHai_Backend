@@ -26,3 +26,7 @@ type GetNotificationObjectBody struct {
 type SetNotificationReadBody struct {
 	NotiID *string `json:"noti_id" validate:"required"`
 }
+
+type GetNotificationObjectByNotiIDBody struct {
+	NotiID *string `json:"noti_id" validate:"required"`
+}

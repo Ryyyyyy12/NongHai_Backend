@@ -47,5 +47,4 @@ func (r *notificationRepository) GetNotificationObjectByNotiID(notificationID st
 
 func (r *notificationRepository) UpdateNotificationObject(notificationObject model.Notification) error {
 	return r.DB.Save(&notificationObject).Error
-
 }

@@ -71,6 +71,8 @@ func InitRoutes() {
 	notificationGroup.Post("/sendNotification", notificationHandler.SendNotification)
 	// notificationGroup.Post("/createNotificationObject", notificationHandler.CreateNotificationObject)
 	notificationGroup.Get("/getNotificationObject", notificationHandler.GetNotificationObject)
+	notificationGroup.Post("/setNotificationRead", notificationHandler.SetNotificationRead)
+	notificationGroup.Get("/getNotification", notificationHandler.GetNotificationObjectByNotiID)
 
 	userGroup := apiGroup.Group("/user")
 	userGroup.Post("/createUser", userHandler.CreateUser)
