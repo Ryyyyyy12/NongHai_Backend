@@ -12,6 +12,7 @@ type trackingRepository struct {
 type ITrackingRepository interface {
 	Create(tracking model.Tracking) (newTracking *model.Tracking, err error)
 	FindByPetId(PetId string) (tracking *[]model.Tracking, err error)
+	FindById(trackingId string) (tracking *model.Tracking, err error)
 }
 
 func NewTrackingRepository(db gorm.DB) ITrackingRepository {
@@ -30,6 +31,14 @@ func (r *trackingRepository) Create(tracking model.Tracking) (newTracking *model
 func (r *trackingRepository) FindByPetId(PetId string) (tracking *[]model.Tracking, err error) {
 	foundTracking := new([]model.Tracking)
 	if err = r.DB.Find(&foundTracking, "pet_id = ?", PetId).Error; err != nil {
+		return nil, err
+	}
+	return foundTracking, nil
+}
+
+func (r *trackingRepository) FindById(trackingId string) (tracking *model.Tracking, err error) {
+	foundTracking := new(model.Tracking)
+	if err = r.DB.First(&foundTracking, "id = ?", trackingId).Error; err != nil {
 		return nil, err
 	}
 	return foundTracking, nil

@@ -31,7 +31,7 @@ func InitRoutes() {
 	petService := service.NewPetService(petRepo)
 
 	//Handlers
-	trackingHandler := handler.NewTrackingHandler(trackingService, userService, notificationService)
+	trackingHandler := handler.NewTrackingHandler(trackingService, userService, notificationService, petService)
 	ChatHandler := handler.NewChatHandler(chatService)
 	userHandler := handler.NewUserHandler(userService)
 	userTokenHandler := handler.NewUserTokenHandler(userFCMTokenService)
@@ -53,6 +53,7 @@ func InitRoutes() {
 	trackingGroup := apiGroup.Group("/tracking")
 	trackingGroup.Post("/createTracking", trackingHandler.CreateTracking)
 	trackingGroup.Get("/getTracking", trackingHandler.GetTracking)
+	trackingGroup.Get("/getTrackingById", trackingHandler.GetTrackingByID)
 
 	chatGroup := apiGroup.Group("/chat")
 	chatGroup.Post("/createChatRoom", ChatHandler.CreateChatRoom)

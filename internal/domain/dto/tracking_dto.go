@@ -1,6 +1,10 @@
 package dto
 
-import "github.com/google/uuid"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type CreateTrackingBody struct {
 	PetId    *string  `json:"pet_id" validate:"required"`
@@ -35,4 +39,15 @@ type TrackingInfo struct {
 	Address     string    `json:"address"`
 	CreatedAt   string    `json:"created_at"`
 	FinderImg   string    `json:"finder_img"`
+}
+
+type TrackingNotiInfo struct {
+	Address   string    `json:"address"`
+	CreatedAt time.Time `json:"created_at"`
+	PetName   string    `json:"pet_name"`
+	PetImg    string    `json:"pet_img"`
+}
+
+type GetTrackingByIDBody struct {
+	TrackingId *string `json:"tracking_id" validate:"required"`
 }
