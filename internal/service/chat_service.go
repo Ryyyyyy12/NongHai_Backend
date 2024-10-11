@@ -5,6 +5,7 @@ import (
 	"backend/internal/domain/model"
 	"backend/internal/repository"
 	"errors"
+	"fmt"
 )
 
 type IChatService interface {
@@ -29,7 +30,8 @@ func NewChatService(
 
 func (s *chatService) CreateChatRoom(chatData dto.CreateChatRoomBody) error {
 	_, err := s.chatRepo.FindByChatID(*chatData.ChatID)
-	if err == nil {
+	if err != nil && err.Error() != "chat room not found" {
+		fmt.Println(err)
 		return errors.New("chat room already exists")
 	}
 
