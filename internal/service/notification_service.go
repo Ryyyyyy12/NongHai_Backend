@@ -98,6 +98,9 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 	successCount := 0
 	failureCount := 0
 	for _, token := range registrationTokens {
+		fmt.Println()
+		fmt.Println("senting to Token: ", token)
+		fmt.Println()
 		message := &messaging.Message{
 			Notification: &messaging.Notification{
 				Title: *notiData.Title,

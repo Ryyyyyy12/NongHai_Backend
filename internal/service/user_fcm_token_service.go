@@ -28,7 +28,7 @@ func NewUserFCMTokenService(
 
 func (s *userFCMTokenService) CreateUserFCMToken(body dto.UserFCMTokenBody) error {
 	fmt.Print(body.Token)
-	token, err := s.TokenRepo.GetTokenByToken(body.Token)
+	token, err := s.TokenRepo.GetTokenByTokenAndUserID(body.Token, body.UserID)
 	if err != nil && err.Error() != "record not found" {
 		return err
 	}
@@ -53,12 +53,11 @@ func (s *userFCMTokenService) GetUserFCMToken(userID string) ([]string, error) {
 		tokens = append(tokens, t.Token)
 	}
 
-	fmt.Print(tokens)
 	return tokens, nil
 }
 
 func (s *userFCMTokenService) RemoveUserFCMToken(body dto.UserFCMTokenBody) error {
-	token, err := s.TokenRepo.GetTokenByToken(body.Token)
+	token, err := s.TokenRepo.GetTokenByTokenAndUserID(body.Token, body.UserID)
 	if err != nil {
 		return err
 	}

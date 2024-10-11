@@ -9,7 +9,7 @@ import (
 type ITokenRepository interface {
 	CreateToken(tokenData model.Token) error
 	GetTokenByUserID(userID string) (*[]model.Token, error)
-	GetTokenByToken(token string) (*model.Token, error)
+	GetTokenByTokenAndUserID(token, user_id string) (*model.Token, error)
 	RemoveToken(tokenData model.Token) error
 }
 
@@ -29,19 +29,22 @@ func (r *tokenRepository) CreateToken(tokenData model.Token) error {
 
 func (r *tokenRepository) GetTokenByUserID(userID string) (*[]model.Token, error) {
 	foundToken := new([]model.Token)
-	if err := r.DB.First(&foundToken, "user_id = ?", userID).Error; err != nil {
+	if err := r.DB.Find(&foundToken, "user_id = ?", userID).Error; err != nil {
 		return nil, err
 	}
 	return foundToken, nil
 }
 
-func (r *tokenRepository) GetTokenByToken(token string) (*model.Token, error) {
+func (r *tokenRepository) GetTokenByTokenAndUserID(token, userID string) (*model.Token, error) {
 	foundToken := new(model.Token)
-	if err := r.DB.First(&foundToken, "token = ?", token).Error; err != nil {
+	// Use both token and user_id in the query condition
+	if err := r.DB.First(&foundToken, "token = ? AND user_id = ?", token, userID).Error; err != nil {
 		return nil, err
 	}
+
 	return foundToken, nil
 }
+
 
 func (r *tokenRepository) RemoveToken(tokenData model.Token) error {
 	return r.DB.Delete(&tokenData).Error
