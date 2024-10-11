@@ -81,6 +81,7 @@ func InitRoutes() {
 	petGroup := apiGroup.Group("/pet")
 	petGroup.Post("/createPet", petHandler.CreatePet)
 	petGroup.Get("/:id", petHandler.GetPet)
+	petGroup.Put("/:id", petHandler.UpdatePet)
 
 	apiGroup.Use(middleware.Cors())
 

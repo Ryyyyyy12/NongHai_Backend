@@ -28,6 +28,21 @@ type CreatePetBody struct {
 	Image       string           `json:"image"`
 }
 
+type UpdatePetBody struct {
+	Name        *string           `json:"name,omitempty"`
+	AnimalType  *enum2.AnimalType `json:"animal_type,omitempty"`
+	Breed       *string           `json:"breed,omitempty"`
+	DateOfBirth *CustomDate       `json:"date_of_birth,omitempty"`
+	Sex         *enum2.Sex        `json:"sex,omitempty"`
+	Weight      *float64          `json:"weight,omitempty"`
+	HairColor   *string           `json:"hair_color,omitempty"`
+	BloodType   *string           `json:"blood_type,omitempty"`
+	Eyes        *string           `json:"eyes,omitempty"`
+	Status      *enum2.Status     `json:"status,omitempty"`
+	Note        *string           `json:"note,omitempty"`
+	Image       *string           `json:"image,omitempty"`
+}
+
 type CustomDate struct {
     time.Time
 }
