@@ -134,3 +134,29 @@ func (h PetHandler) UpdatePet(c *fiber.Ctx) error {
 		Message: "Pet updated successfully",
 	})
 }
+
+// DeletePet deletes a pet based on ID
+func (h *PetHandler) DeletePet(c *fiber.Ctx) error {
+	// Get the pet ID from the URL parameters
+	petId := c.Params("id")
+	if petId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Pet ID is required",
+		})
+	}
+
+	// Call the service to delete the pet
+	if err := h.petService.DeletePet(petId); err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Pet not found: " + err.Error(),
+		})
+	}
+
+	// Respond with success message
+	return c.Status(fiber.StatusOK).JSON(response.InfoResponse{
+		Success: true,
+		Message: "Pet deleted successfully.",
+	})
+}

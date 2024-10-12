@@ -77,11 +77,13 @@ func InitRoutes() {
 	userGroup := apiGroup.Group("/user")
 	userGroup.Post("/createUser", userHandler.CreateUser)
 	userGroup.Get("/:id", userHandler.GetUser)
+	userGroup.Put("/:id", userHandler.UpdateUser)
 
 	petGroup := apiGroup.Group("/pet")
 	petGroup.Post("/createPet", petHandler.CreatePet)
 	petGroup.Get("/:id", petHandler.GetPet)
 	petGroup.Put("/:id", petHandler.UpdatePet)
+	petGroup.Delete("/:id", petHandler.DeletePet)
 
 	apiGroup.Use(middleware.Cors())
 

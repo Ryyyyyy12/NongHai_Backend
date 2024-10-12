@@ -6,6 +6,7 @@ import (
 	"backend/internal/domain/response"
 	"backend/internal/service"
 	"backend/internal/util/text"
+	"log"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -102,3 +103,42 @@ func (h UserHandler) CreateUser(c *fiber.Ctx) error {
 		Message: "User created successfully",
 	})
 }
+
+// UpdateUser updates an existing user based on the request body
+func (h UserHandler) UpdateUser(c *fiber.Ctx) error {
+	// Get the user ID from the URL parameters
+	log.Printf("Request Method: %s, URL: %s", c.Method(), c.OriginalURL())
+	userId := c.Params("id")
+	if userId == "" {
+		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
+			Success: false,
+			Message: "User ID is required",
+		})
+	}
+
+	// Parse request body into UpdateUserBody DTO
+	body := new(dto.UpdateUserBody)
+	if err := c.BodyParser(body); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Invalid request body",
+		})
+	}
+
+	// Call the service to update the user
+	updatedUser, err := h.userService.Update(userId, body)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).JSON(response.InfoResponse{
+			Success: false,
+			Message: "Failed to update user: " + err.Error(),
+		})
+	}
+
+	// Respond with the updated user data
+	return c.Status(fiber.StatusOK).JSON(response.InfoResponse{
+		Success: true,
+		Data:    updatedUser,
+		Message: "User updated successfully",
+	})
+}
+

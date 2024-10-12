@@ -10,6 +10,7 @@ type IUserRepository interface {
 	Create(user model.User) (newUser *model.User, err error)
 	FindById(userId string) (user *model.User, err error)
 	FindByIdWithPets(userId string) (user *model.User, err error)  // New method for preloading pets
+	Update(user *model.User) error
 }
 
 type userRepository struct {
@@ -47,4 +48,9 @@ func (r *userRepository) FindByIdWithPets(userId string) (user *model.User, err 
 		return nil, err
 	}
 	return foundUser, nil
+}
+
+// Update modifies the existing user in the database
+func (r *userRepository) Update(user *model.User) error {
+	return r.DB.Save(user).Error
 }

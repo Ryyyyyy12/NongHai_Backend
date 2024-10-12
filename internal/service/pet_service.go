@@ -11,6 +11,7 @@ type IPetService interface {
 	GetPetInfo(petId string) (*dto.CreatePetBody, error)
 	Create(pet *model.Pet) (*model.Pet, error)
 	UpdatePet(petId string, updateData map[string]interface{}) (*model.Pet, error)
+	DeletePet(petId string) error
 }
 
 type petService struct {
@@ -21,6 +22,10 @@ func NewPetService(petRepo repository.IPetRepository) IPetService {
 	return &petService{
 		petRepo: petRepo,
 	}
+}
+
+func (s *petService) DeletePet(petId string) error {
+	return s.petRepo.Delete(petId)
 }
 
 // GetPetInfo retrieves pet information by ID and calculates the age

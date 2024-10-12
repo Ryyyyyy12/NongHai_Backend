@@ -10,6 +10,7 @@ type IPetRepository interface {
 	FindById(petId string) (*model.Pet, error)
 	Create(pet *model.Pet) (*model.Pet, error)
 	Update(petId string, updateData map[string]interface{}) (*model.Pet, error)
+	Delete(petId string) error
 }
 
 type petRepository struct {
@@ -52,4 +53,11 @@ func (r *petRepository) Update(petId string, updateData map[string]interface{}) 
 	}
 
 	return &pet, nil
+}
+
+func (r *petRepository) Delete(petId string) error {
+	if err := r.DB.Delete(&model.Pet{}, "id = ?", petId).Error; err != nil {
+		return err
+	}
+	return nil
 }
