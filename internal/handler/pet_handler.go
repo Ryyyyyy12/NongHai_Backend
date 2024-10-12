@@ -75,8 +75,8 @@ func (h PetHandler) CreatePet(c *fiber.Ctx) error {
 		Weight:      body.Weight,
 		HairColor:   body.HairColor,
 		BloodType:   body.BloodType,
-		Eyes: body.Eyes,
-		Status: body.Status,
+		Eyes:        body.Eyes,
+		Status:      body.Status,
 		Note:        body.Note,
 		Image:       body.Image,
 	}
@@ -89,10 +89,12 @@ func (h PetHandler) CreatePet(c *fiber.Ctx) error {
 			Message: "Failed to create pet: " + err.Error(),
 		})
 	}
+	
+	petId := createdPet.ID.String()
 
 	return c.Status(fiber.StatusCreated).JSON(response.InfoResponse{
 		Success: true,
-		Data:    createdPet,
+		Data:    petId,
 		Message: "Pet created successfully",
 	})
 }

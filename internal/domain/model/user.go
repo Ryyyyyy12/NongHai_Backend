@@ -5,7 +5,7 @@ import "time"
 type User struct {
 	ID            string         `json:"id" gorm:"primary_key;not null;"`
 	CreatedAt     time.Time      `json:"created_at" gorm:"not null"`
-	UpdatedAt     time.Time      `json:"updated_at" gor:"not null"`
+	UpdatedAt     time.Time      `json:"updated_at" gorm:"not null"`
 	Username      string         `json:"username" gorm:"not null"`
 	Name          string         `json:"name" gorm:"not null"`
 	Surname       string         `json:"surname" gorm:"not null"`

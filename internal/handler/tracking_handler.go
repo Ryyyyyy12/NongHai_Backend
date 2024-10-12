@@ -6,19 +6,30 @@ import (
 	"backend/internal/service"
 	"backend/internal/util/text"
 	"backend/loaders/config"
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/kelvins/geocoder"
 )
 
 type TrackingHandler struct {
-	trackingService service.ITrackingService
-	userService     service.IUserService
+	trackingService     service.ITrackingService
+	userService         service.IUserService
+	notificationService service.INotificationService
+	petService          service.IPetService
 }
 
-func NewTrackingHandler(trackingService service.ITrackingService, userService service.IUserService) TrackingHandler {
+func NewTrackingHandler(
+	trackingService service.ITrackingService,
+	userService service.IUserService,
+	notificationService service.INotificationService,
+	petService service.IPetService,
+) TrackingHandler {
 	return TrackingHandler{
-		trackingService: trackingService,
-		userService:     userService,
+		trackingService:     trackingService,
+		userService:         userService,
+		notificationService: notificationService,
+		petService:          petService,
 	}
 }
 
@@ -34,6 +45,16 @@ func (h TrackingHandler) CreateTracking(c *fiber.Ctx) error {
 
 	resp, err := h.trackingService.Create(*body.PetId, *body.FinderId, *body.Lat, *body.Long)
 	if err != nil {
+		return err
+	}
+
+	notiObject := dto.CreateNotificationObjectBody{
+		PetID:      body.PetId,
+		TrackingID: resp.ID,
+	}
+
+	// Create notification object
+	if err := h.notificationService.CreateNotificationObject(notiObject); err != nil {
 		return err
 	}
 
@@ -110,4 +131,54 @@ func (h TrackingHandler) GetTracking(c *fiber.Ctx) error {
 		Success: true,
 		Data:    resp,
 	})
+}
+
+func (h TrackingHandler) GetTrackingByID(c *fiber.Ctx) error {
+	body := new(dto.GetTrackingByIDBody)
+	if err := c.BodyParser(body); err != nil {
+		return err
+	}
+
+	if err := text.Validator.Struct(body); err != nil {
+		return err
+	}
+
+	tracking, err := h.trackingService.GetByID(*body.TrackingId)
+	if err != nil {
+		return err
+	}
+
+	pet, err := h.petService.GetPetInfo(tracking.PetID)
+	if err != nil {
+		return err
+	}
+
+	location := geocoder.Location{
+		Latitude:  tracking.Latitude,
+		Longitude: tracking.Longitude,
+	}
+
+	var respAddress string
+
+	geocoder.ApiKey = config.Conf.GoogleAPIKey
+	address, err := geocoder.GeocodingReverse(location)
+	if err != nil {
+		fmt.Println("error: ", err)
+		respAddress = "No results found"
+	} else {
+		respAddress = address[0].FormattedAddress
+	}
+
+	trackingInfo := dto.TrackingNotiInfo{
+		Address:   respAddress,
+		CreatedAt: tracking.CreatedAt,
+		PetName:   pet.Name,
+		PetImg:    pet.Image,
+	}
+
+	return c.JSON(response.InfoResponse{
+		Success: true,
+		Data:    trackingInfo,
+	})
+
 }

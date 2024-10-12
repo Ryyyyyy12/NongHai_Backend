@@ -5,11 +5,13 @@ import (
 	"backend/internal/domain/model"
 	"backend/internal/repository"
 	"errors"
+	"fmt"
 )
 
 type IChatService interface {
 	CreateChatRoom(chatData dto.CreateChatRoomBody) error
 	GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error)
+	GetCurrentUserChatRoom(chatData dto.GetCurrentUserChatRoomBody) (*model.ChatRoom, error)
 	ReadChat(chatData dto.ReadChatRoomBody) error
 	SetUnread(chatData dto.SendMessageBody) error
 }
@@ -27,15 +29,36 @@ func NewChatService(
 }
 
 func (s *chatService) CreateChatRoom(chatData dto.CreateChatRoomBody) error {
-	return s.chatRepo.Create(model.ChatRoom{
+	_, err := s.chatRepo.FindByChatID(*chatData.ChatID)
+	if err != nil && err.Error() != "chat room not found" {
+		fmt.Println(err)
+		return errors.New("chat room already exists")
+	}
+
+	err = s.chatRepo.Create(model.ChatRoom{
 		ID:      *chatData.ChatID,
 		UserID1: *chatData.UserID1,
 		UserID2: *chatData.UserID2,
 	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (s *chatService) GetChatRoom(chatData dto.GetChatRoomBody) (*[]model.ChatRoom, error) {
 	chatRoom, err := s.chatRepo.FindByUserID(*chatData.UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return chatRoom, nil
+}
+
+func (s *chatService) GetCurrentUserChatRoom(chatData dto.GetCurrentUserChatRoomBody) (*model.ChatRoom, error) {
+	chatRoom, err := s.chatRepo.FindByChatID(*chatData.ChatID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,16 +72,16 @@ func (s *chatService) ReadChat(chatData dto.ReadChatRoomBody) error {
 		return err
 	}
 
-	if *chatData.UserID != chatRoom.UserID1 && *chatData.UserID != chatRoom.UserID2 {
+	if *chatData.SenderID != chatRoom.UserID1 && *chatData.SenderID != chatRoom.UserID2 {
 		return errors.New("user not in chat room")
 	}
 
-	if *chatData.UserID == chatRoom.UserID1 {
+	if *chatData.SenderID == chatRoom.UserID1 {
 		// Set user 1 to read
 		chatRoom.IsUser1Read = true
 	}
 
-	if *chatData.UserID == chatRoom.UserID2 {
+	if *chatData.SenderID == chatRoom.UserID2 {
 		//Set user 2 to read
 		chatRoom.IsUser2Read = true
 	}

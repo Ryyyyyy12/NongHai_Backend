@@ -3,12 +3,14 @@ package service
 import (
 	"backend/internal/domain/model"
 	"backend/internal/repository"
+	"sort"
 	"strings"
 )
 
 type ITrackingService interface {
 	Create(petId string, finderId string, lat float64, long float64) (tracking *model.Tracking, err error)
 	GetAllById(petId string) (tracking *[]model.Tracking, err error)
+	GetByID(trackingId string) (tracking *model.Tracking, err error)
 }
 
 type trackingService struct {
@@ -47,6 +49,17 @@ func (s *trackingService) GetAllById(petId string) (tracking *[]model.Tracking, 
 	if err != nil {
 		return nil, err
 	}
-
+	//order by created_at
+	sort.Slice(*foundTracking, func(i, j int) bool {
+		return (*foundTracking)[i].CreatedAt.After((*foundTracking)[j].CreatedAt)
+	})
 	return foundTracking, nil
+}
+
+func (s *trackingService) GetByID(trackingId string) (tracking *model.Tracking, err error) {
+	tracking, err = s.trackingRepo.FindById(trackingId)
+	if err != nil {
+		return nil, err
+	}
+	return tracking, nil
 }
