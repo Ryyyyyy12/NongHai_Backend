@@ -4,14 +4,14 @@ import "github.com/google/uuid"
 
 type SendNotificationBody struct {
 	SentTO           *string           `json:"sent_to" validate:"required"`
-	Title            *string           `json:"title" validate:"required"`
-	Body             *string           `json:"body" validate:"required"`
+	Title            string            `json:"title" validate:"required"`
+	Body             string            `json:"body" validate:"required"`
 	NotificationData *NotificationData `json:"notification_data"`
 }
 
 type NotificationData struct {
-	Navigateto *string `json:"navigateto"`
-	ChatWith   *string `json:"chat_with"`
+	Navigateto string `json:"navigateto"`
+	Identifer string `json:"identifier"` // chat_with for chat and tracking for tracking
 }
 
 type CreateNotificationObjectBody struct {

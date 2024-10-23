@@ -103,12 +103,12 @@ func (s *notificationService) SendNotification(notiData dto.SendNotificationBody
 		fmt.Println()
 		message := &messaging.Message{
 			Notification: &messaging.Notification{
-				Title: *notiData.Title,
-				Body:  *notiData.Body,
+				Title: notiData.Title,
+				Body:  notiData.Body,
 			},
 			Data: map[string]string{
-				"navigate_to": *notiData.NotificationData.Navigateto,
-				"chat_with":   *notiData.NotificationData.ChatWith,
+				"navigate_to": notiData.NotificationData.Navigateto,
+				"chat_with":   notiData.NotificationData.Identifer,
 			},
 			Token: token,
 		}
@@ -142,6 +142,25 @@ func (s *notificationService) CreateNotificationObject(notiData dto.CreateNotifi
 	}); err != nil {
 		return err
 	}
+
+	sendNotiData := dto.SendNotificationBody{
+		SentTO: &petData.UserID,
+		Title:  petData.Name,
+		Body:   petData.Name + " Found",
+		NotificationData: &dto.NotificationData{
+			Navigateto: "tracking",
+			Identifer:  "",
+		},
+	}
+
+	fmt.Println("sendNotiData: ", sendNotiData)
+
+	successCount, failureCount, err := s.SendNotification(sendNotiData)
+	if err != nil {
+		fmt.Println("Error sending notification", err, "success: ", successCount, "fail: ", failureCount)
+		return err
+	}
+
 	return nil
 }
 
